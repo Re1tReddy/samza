@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="10">
+	<Appenders>
+		<RollingFile name="RollingFile"
+			fileName="${sys:samza.log.dir}/${sys:samza.container.name}.log"
+			filePattern="${sys:samza.log.dir}/${sys:samza.container.name}-%d{MM-dd-yyyy}-%i-old.log">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X{akkaSource} - %msg%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+			<DefaultRolloverStrategy>
+				<!-- * only files in the log folder, no sub folders * only rolled over 
+					log files (name match) * either when more than 10 matching files exist or 
+					when the max disk usage is exceeded -->
+				<Delete basePath="${sys:samza.log.dir}" maxDepth="1">
+					<IfLastModified age="1d" />
+					<IfFileName glob="*-old.log">
+						<IfAny>
+							<IfAccumulatedFileSize exceeds="500 MB" />
+							<IfAccumulatedFileCount exceeds="10" />
+						</IfAny>
+					</IfFileName>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+		<Async name="Async">
+			<AppenderRef ref="RollingFile" />
+		</Async>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X{akkaSource} - %msg%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="com.rasa.cloud.samza.amon.AmonParser" level="info"
+			additivity="false">
+			<AppenderRef ref="Async" />
+		</Logger>
+		<Logger name="com.rasa.cloud.samza.amon" level="info"
+			additivity="false">
+			<AppenderRef ref="Async" />
+		</Logger>
+		<Logger name="com.rasa.cloud" level="info"
+			additivity="false">
+			<AppenderRef ref="Async" />
+		</Logger>
+		<Root level="info">
+			<AppenderRef ref="Async" />
+		</Root>
+	</Loggers>
+</Configuration>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" monitorInterval="10">
+	<Appenders>
+		<RollingFile name="RollingFile"
+			fileName="${sys:samza.log.dir}/${sys:samza.container.name}.log"
+			filePattern="${sys:samza.log.dir}/${sys:samza.container.name}-%d{MM-dd-yyyy}-%i.log">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X{akkaSource} - %msg%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+		</RollingFile>
+		<Async name="Async">
+			<AppenderRef ref="RollingFile" />
+		</Async>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %X{akkaSource} - %msg%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="com.samza.examples" level="info"
+			additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Root level="info">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>
